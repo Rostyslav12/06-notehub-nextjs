@@ -22,12 +22,9 @@ const validationSchema = Yup.object({
     .required("Title is required")
     .min(3, "Title must be at least 3 characters"),
 
-  content: Yup.string()
-    .trim()
-    .notRequired(),
+  content: Yup.string().trim().notRequired(),
 
-  tag: Yup.string()
-    .required("Tag is required"),
+  tag: Yup.string().required("Tag is required"),
 });
 
 export default function NoteForm({ onClose }: NoteFormProps) {
@@ -74,10 +71,7 @@ export default function NoteForm({ onClose }: NoteFormProps) {
             placeholder="Enter note title"
           />
 
-          <ErrorMessage
-            name="title"
-            component="p"
-          />
+          <ErrorMessage name="title" component="p" />
         </div>
 
         <div>
@@ -90,52 +84,32 @@ export default function NoteForm({ onClose }: NoteFormProps) {
             placeholder="Enter note content"
           />
 
-          <ErrorMessage
-            name="content"
-            component="p"
-          />
+          <ErrorMessage name="content" component="p" />
         </div>
 
         <div>
           <label htmlFor="tag">Tag</label>
 
-          <Field
-            id="tag"
-            name="tag"
-            as="select"
-          >
+          <Field id="tag" name="tag" as="select">
             <option value="">Select tag</option>
             <option value="Todo">Todo</option>
             <option value="Work">Work</option>
             <option value="Personal">Personal</option>
             <option value="Meeting">Meeting</option>
             <option value="Shopping">Shopping</option>
-            <option value="Ideas">Ideas</option>
           </Field>
 
-          <ErrorMessage
-            name="tag"
-            component="p"
-          />
+          <ErrorMessage name="tag" component="p" />
         </div>
 
-        {mutation.isError && (
-          <p>{mutation.error.message}</p>
-        )}
+        {mutation.isError && <p>{mutation.error.message}</p>}
 
         <div>
-          <button
-            type="submit"
-            disabled={mutation.isPending}
-          >
+          <button type="submit" disabled={mutation.isPending}>
             {mutation.isPending ? "Creating..." : "Create note"}
           </button>
 
-          <button
-            type="button"
-            onClick={onClose}
-            disabled={mutation.isPending}
-          >
+          <button type="button" onClick={onClose} disabled={mutation.isPending}>
             Cancel
           </button>
         </div>
