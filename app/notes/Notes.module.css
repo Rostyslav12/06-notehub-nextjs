@@ -1,0 +1,38 @@
+.main {
+  padding: 40px 20px;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 24px;
+}
+
+.title {
+  margin: 0;
+
+  font-size: 32px;
+}
+
+.createButton {
+  padding: 10px 16px;
+
+  background-color: #2563eb;
+  color: #ffffff;
+
+  border: none;
+  border-radius: 6px;
+
+  cursor: pointer;
+}
+
+.createButton:hover {
+  background-color: #1d4ed8;
+}
