@@ -1,106 +1,145 @@
 "use client";
 
-import { FormEvent, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { ErrorMessage, Field, Form, Formik } from "formik";
+import * as Yup from "yup";
 
 import { createNote } from "../../lib/api";
 
-import css from "./NoteForm.module.css";
-
 interface NoteFormProps {
-  onSuccess: () => void;
+  onClose: () => void;
 }
 
-export default function NoteForm({
-  onSuccess,
-}: NoteFormProps) {
-  const queryClient = useQueryClient();
+interface NoteFormValues {
+  title: string;
+  content: string;
+  tag: string;
+}
 
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
-  const [tag, setTag] = useState("Todo");
+const validationSchema = Yup.object({
+  title: Yup.string()
+    .trim()
+    .required("Title is required")
+    .min(3, "Title must be at least 3 characters"),
+
+  content: Yup.string()
+    .trim()
+    .notRequired(),
+
+  tag: Yup.string()
+    .required("Tag is required"),
+});
+
+export default function NoteForm({ onClose }: NoteFormProps) {
+  const queryClient = useQueryClient();
 
   const mutation = useMutation({
     mutationFn: createNote,
 
-    onSuccess: () => {
-      queryClient.invalidateQueries({
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
         queryKey: ["notes"],
       });
 
-      setTitle("");
-      setContent("");
-      setTag("Todo");
-
-      onSuccess();
+      onClose();
     },
   });
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    if (!title.trim() || !content.trim()) {
-      return;
-    }
-
-    mutation.mutate({
-      title: title.trim(),
-      content: content.trim(),
-      tag,
-    });
+  const initialValues: NoteFormValues = {
+    title: "",
+    content: "",
+    tag: "",
   };
 
   return (
-    <form className={css.form} onSubmit={handleSubmit}>
-      <label className={css.label}>
-        Title
-        <input
-          className={css.input}
-          type="text"
-          value={title}
-          onChange={(event) => setTitle(event.target.value)}
-          required
-        />
-      </label>
+    <Formik
+      initialValues={initialValues}
+      validationSchema={validationSchema}
+      onSubmit={(values) => {
+        mutation.mutate({
+          title: values.title,
+          content: values.content || undefined,
+          tag: values.tag,
+        });
+      }}
+    >
+      <Form>
+        <div>
+          <label htmlFor="title">Title</label>
 
-      <label className={css.label}>
-        Content
-        <textarea
-          className={css.textarea}
-          value={content}
-          onChange={(event) => setContent(event.target.value)}
-          required
-        />
-      </label>
+          <Field
+            id="title"
+            name="title"
+            type="text"
+            placeholder="Enter note title"
+          />
 
-      <label className={css.label}>
-        Tag
-        <select
-          className={css.input}
-          value={tag}
-          onChange={(event) => setTag(event.target.value)}
-        >
-          <option value="Todo">Todo</option>
-          <option value="Work">Work</option>
-          <option value="Personal">Personal</option>
-          <option value="Meeting">Meeting</option>
-          <option value="Shopping">Shopping</option>
-        </select>
-      </label>
+          <ErrorMessage
+            name="title"
+            component="p"
+          />
+        </div>
 
-      {mutation.isError && (
-        <p className={css.error}>
-          Could not create note.
-        </p>
-      )}
+        <div>
+          <label htmlFor="content">Content</label>
 
-      <button
-        className={css.button}
-        type="submit"
-        disabled={mutation.isPending}
-      >
-        {mutation.isPending ? "Creating..." : "Create note"}
-      </button>
-    </form>
+          <Field
+            id="content"
+            name="content"
+            as="textarea"
+            placeholder="Enter note content"
+          />
+
+          <ErrorMessage
+            name="content"
+            component="p"
+          />
+        </div>
+
+        <div>
+          <label htmlFor="tag">Tag</label>
+
+          <Field
+            id="tag"
+            name="tag"
+            as="select"
+          >
+            <option value="">Select tag</option>
+            <option value="Todo">Todo</option>
+            <option value="Work">Work</option>
+            <option value="Personal">Personal</option>
+            <option value="Meeting">Meeting</option>
+            <option value="Shopping">Shopping</option>
+            <option value="Ideas">Ideas</option>
+          </Field>
+
+          <ErrorMessage
+            name="tag"
+            component="p"
+          />
+        </div>
+
+        {mutation.isError && (
+          <p>{mutation.error.message}</p>
+        )}
+
+        <div>
+          <button
+            type="submit"
+            disabled={mutation.isPending}
+          >
+            {mutation.isPending ? "Creating..." : "Create note"}
+          </button>
+
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={mutation.isPending}
+          >
+            Cancel
+          </button>
+        </div>
+      </Form>
+    </Formik>
   );
 }

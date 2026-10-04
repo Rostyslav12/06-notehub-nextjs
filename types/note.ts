@@ -4,15 +4,11 @@ export interface Note {
   content: string;
   tag: string;
   createdAt: string;
-}
-
-export interface NotesResponse {
-  notes: Note[];
-  totalPages: number;
+  updatedAt: string;
 }
 
 export interface CreateNoteData {
   title: string;
-  content: string;
+  content?: string;
   tag: string;
 }
