@@ -20,11 +20,20 @@ const validationSchema = Yup.object({
   title: Yup.string()
     .trim()
     .required("Title is required")
-    .min(3, "Title must be at least 3 characters"),
+    .min(3, "Title must be at least 3 characters")
+    .max(50, "Title must be at most 50 characters"),
 
-  content: Yup.string().trim().notRequired(),
+  content: Yup.string()
+    .trim()
+    .max(500, "Content must be at most 500 characters")
+    .notRequired(),
 
-  tag: Yup.string().required("Tag is required"),
+  tag: Yup.string()
+    .required("Tag is required")
+    .oneOf(
+      ["Todo", "Work", "Personal", "Meeting", "Shopping"],
+      "Invalid tag",
+    ),
 });
 
 export default function NoteForm({ onClose }: NoteFormProps) {
